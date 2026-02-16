@@ -15,19 +15,17 @@ AESD_ASSIGNMENTS_SITE_METHOD = git
 AESD_ASSIGNMENTS_GIT_SUBMODULES = YES
 
 define AESD_ASSIGNMENTS_BUILD_CMDS
-	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/finder-app all
+	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/server all
 endef
 
 # TODO add your writer, finder and finder-test utilities/scripts to the installation steps below
 
 define AESD_ASSIGNMENTS_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/finder-app/writer $(TARGET_DIR)/usr/bin/writer
-	$(INSTALL) -D -m 0755 $(@D)/finder-app/finder.sh $(TARGET_DIR)/usr/bin/finder.sh
-	$(INSTALL) -D -m 0755 $(@D)/finder-app/finder-test.sh $(TARGET_DIR)/usr/bin/finder-test.sh
+	$(INSTALL) -D -m 0755 $(@D)/server/aesdsocket $(TARGET_DIR)/usr/bin/aesdsocket
+	$(INSTALL) -D -m 0755 $(@D)/server/aesdchar_load $(TARGET_DIR)/usr/bin/aesdchar_load
+	$(INSTALL) -D -m 0755 $(@D)/server/aesdchar_unload $(TARGET_DIR)/usr/bin/aesdchar_unload
 
-	$(INSTALL) -d $(TARGET_DIR)/usr/bin/conf
-	$(INSTALL) -m 0644 $(@D)/conf/username.txt $(TARGET_DIR)/usr/bin/conf/username.txt
-	$(INSTALL) -m 0644 $(@D)/conf/assignment.txt $(TARGET_DIR)/usr/bin/conf/assignment.txt
+	$(INSTALL) -D -m 0755 $(@D)/server/aesdsocket-start-stop $(TARGET_DIR)/etc/init.d/S99aesdsocket
 endef
 
 $(eval $(generic-package))
