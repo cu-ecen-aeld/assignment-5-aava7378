@@ -1,0 +1,40 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    echo "Loading LDD modules..."
+
+    modprobe hello 2>/dev/null || true
+    modprobe scull 2>/dev/null || insmod /lib/modules/*/extra/scull.ko 2>/dev/null || true
+    modprobe faulty 2>/dev/null || insmod /lib/modules/*/extra/faulty.ko 2>/dev/null || true
+
+    # Create device nodes if missing (majors can vary)
+    SCULL_MAJOR=$(awk '$2=="scull" {print $1}' /proc/devices)
+    FAULTY_MAJOR=$(awk '$2=="faulty" {print $1}' /proc/devices)
+
+    if [ -n "$SCULL_MAJOR" ]; then
+      [ -e /dev/scull0 ] || mknod /dev/scull0 c "$SCULL_MAJOR" 0
+      [ -e /dev/scull1 ] || mknod /dev/scull1 c "$SCULL_MAJOR" 1
+      [ -e /dev/scull2 ] || mknod /dev/scull2 c "$SCULL_MAJOR" 2
+      [ -e /dev/scull3 ] || mknod /dev/scull3 c "$SCULL_MAJOR" 3
+      chmod 666 /dev/scull0 /dev/scull1 /dev/scull2 /dev/scull3
+    fi
+
+    if [ -n "$FAULTY_MAJOR" ]; then
+      [ -e /dev/faulty ] || mknod /dev/faulty c "$FAULTY_MAJOR" 0
+      chmod 666 /dev/faulty
+    fi
+    ;;
+  stop)
+    echo "Unloading LDD modules..."
+    rmmod faulty 2>/dev/null || true
+    rmmod scull 2>/dev/null || true
+    rmmod hello 2>/dev/null || true
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
